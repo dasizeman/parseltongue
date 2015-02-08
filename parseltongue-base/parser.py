@@ -1,4 +1,5 @@
-#!/bin/env python
+#!/usr/bin/python
+
 import logging
 
 """
@@ -39,6 +40,7 @@ class Parser:
         self.base_state = base_state
         self.change_state(base_state)
         self.logger = logging.getLogger('parser')
+        self.logger.setLevel(logging.DEBUG)
 
     '''
     Change from the current state to a new one.  Will handle the transition
@@ -60,14 +62,18 @@ class Parser:
         else:
             self.current_state = self.transition_manager.handle_unknown_state()
             if not self.current_state:
-                self.logger.warning('The transition manger encountered an
-                unhandled state, returning to base state.')
+                self.logger.warning('The transition manger encountered an' +
+                'unhandled state, returning to base state.')
                 self.transition_manager.transition_to(base_state)
                 self.current_state = base_state
+
+    self.current_state.parse();
 
     def load_elements(self, project_path):
         # TODO: Use refection to load the transition manager and states, and put
         # everything in the python path
+        for item in os.lsdir(project_path):
+            print item
 
     '''
     Return the component dictionary of the current state
