@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import logging
+import os
 
 """
 This is the main ParselTongue Parser class.  It handles storing the current page
@@ -10,18 +11,18 @@ Author: Dave Sizer <dasizer@gmail.com>
 """
 
 class Parser:
-    current_state       # The PageState that the parser currently thinks its in
+    current_state=None       # The PageState that the parser currently thinks its in
 
-    base_state          # The place where the parser starts, and where it will
-                        # return to if something goes wrong
+    base_state=None          # The place where the parser starts, and where it will
+                             # return to if something goes wrong
 
-    transition_manager  # The TransitionManager that defines how to transitions
-                        # occur on this site
+    transition_manager=None  # The TransitionManager that defines how to transitions
+                             # occur on this site
 
-    page_states         # The dictionary of page states that this parser knows
-                        # How to handle
+    page_states=None         # The dictionary of page states that this parser knows
+                             # how to handle
 
-    logger              # The logger for this parser
+    logger=None              # The logger for this parser
 
     '''
     Initialize a new Parser.
@@ -36,11 +37,11 @@ class Parser:
     to be present
     '''
     def __init__(self,project_path, base_state):
-        self.load_components(project_path)
-        self.base_state = base_state
-        self.change_state(base_state)
         self.logger = logging.getLogger('parser')
         self.logger.setLevel(logging.DEBUG)
+        self.load_elements(project_path)
+        self.base_state = base_state
+        self.change_state(base_state)
 
     '''
     Change from the current state to a new one.  Will handle the transition
@@ -67,19 +68,31 @@ class Parser:
                 self.transition_manager.transition_to(base_state)
                 self.current_state = base_state
 
-    self.current_state.parse();
+        self.current_state.parse();
 
     def load_elements(self, project_path):
         # TODO: Use refection to load the transition manager and states, and put
         # everything in the python path
-        for item in os.lsdir(project_path):
-            print item
 
+        # Check if all the directories exist
+        if not dir_check(project_path):
+            self.logger.exception('The required project components were not' +
+                    ' found in the project direcrory')
+            raise ProjectError
     '''
     Return the component dictionary of the current state
     '''
     def get_components(self):
         return self.current_state.get_components()
+
+
+    '''
+    Helper function for checking parseltongue project directories
+    '''
+    def dir_check(name):
+        needed_dirs = ['manager', 'states', 'components', 'helpers']
+        found_dirs = filter(lambda x: x in needed_dirs, os.listdir(name))
+        return set(needed_dirs) == set(found_dirs)
 
             
 
